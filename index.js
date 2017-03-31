@@ -49,13 +49,18 @@ const readStateFile = ({
 
 // run a terraform subcommand
 const runCommand = ({
-  params: { path, projectPath, projectId, tfState, tf },
+  params: { path, projectPath, projectId, tfState, tf, cmdOptions },
   subCommand
 }) => new Promise((resolve, reject) =>
   // execute the command
   exec(
+    // generate command
     `${path} ${subCommand}`,
-    { cwd: `${projectPath}/${projectId}` },
+    //  generate options
+    Object.assign(
+      { cwd: `${projectPath}/${projectId}` },
+      cmdOptions
+    ),
     // resolve promise
     (err, stdout, stderr) => 
       err || stderr
@@ -79,8 +84,9 @@ module.exports = ({
     path = glPath,
     projectPath = glProjectPath,
     projectId = glProjectId,
-    tfState = glTfState
-  }) => ({ path, projectPath, projectId, tfState, tf })
+    tfState = glTfState,
+    cmdOptions = null
+  }) => ({ path, projectPath, projectId, tfState, tf, cmdOptions })
 
   // wrap subcommands in function to call cli
   const subCommandWrapper = (subCommand) => 
