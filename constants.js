@@ -1,6 +1,10 @@
 module.exports = {
   subCommands: [
     'apply',
+    {
+      name: 'destroy',
+      cmd: 'destroy -force'
+    },
     'destroy-managed',
     'fmt',
     'force-unlock',

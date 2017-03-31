@@ -49,7 +49,7 @@ const readStateFile = ({
 
 // run a terraform subcommand
 const runCommand = ({
-  params: { path, projectPath, projectId, tfState, tf, cmdOptions },
+  params: { path, projectPath, projectId, tfState, tf, execOptions },
   subCommand
 }) => new Promise((resolve, reject) =>
   // execute the command
@@ -59,7 +59,7 @@ const runCommand = ({
     //  generate options
     Object.assign(
       { cwd: `${projectPath}/${projectId}` },
-      cmdOptions
+      execOptions
     ),
     // resolve promise
     (err, stdout, stderr) => 
@@ -85,8 +85,8 @@ module.exports = ({
     projectPath = glProjectPath,
     projectId = glProjectId,
     tfState = glTfState,
-    cmdOptions = null
-  }) => ({ path, projectPath, projectId, tfState, tf, cmdOptions })
+    execOptions = null
+  }) => ({ path, projectPath, projectId, tfState, tf, execOptions })
 
   // wrap subcommands in function to call cli
   const subCommandWrapper = (subCommand) => 
@@ -105,10 +105,16 @@ module.exports = ({
   
   // create object out of valid commands
   return subCommands
+    // normalize all commands to { name, cmd } format
+    .map(subCommand => 
+      typeof subCommand == 'string'
+        ? { name: subCommand, cmd: subCommand }
+        : subCommand
+    )
     // map subcommands to function wrapper
-    .map(subCommand => ({
+    .map(({name, cmd}) => ({
       // return object keyed by commandName
-      [subCommand]: subCommandWrapper(subCommand)
+      [name]: subCommandWrapper(cmd)
     }))
     // reduce into object
     .reduce((subCommandsByName, subCommand) =>
