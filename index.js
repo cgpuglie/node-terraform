@@ -58,7 +58,7 @@ const runCommand = ({
     `${path} ${subCommand}`,
     //  generate options
     Object.assign(
-      { cwd: `${projectPath}/${projectId}` },
+      { cwd: npath.join(projectPath, projectId) },
       execOptions
     ),
     // resolve promise
