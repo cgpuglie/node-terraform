@@ -10,20 +10,17 @@ const causeError = (message) => {
 const ensureFileSystem = ({
   params: { path, projectPath, projectId, tfState, tf }
 }) => {
-  // resolve paths
+  // resolve path
   const projectDir = npath.join(projectPath, projectId)
-  const tfFile = npath.join(projectDir, 'resources.tf')
-  const tfStateFile = npath.join(projectDir, 'resources.tfState')
 
   // ensure project directory exists
   fs.existsSync(projectDir)
   || fs.mkdirSync(projectDir)
 
-  fs.existsSync(tfFile)
-  || fs.writeFileSync(tfFile, JSON.stringify(tf, {}, 2))
+  // ensure configs exist
+  fs.writeFileSync(npath.join(projectDir, 'resources.tf'), JSON.stringify(tf, {}, 2))
 
-  fs.existsSync(tfStateFile)
-  || fs.writeFileSync(tfStateFile, JSON.stringify(tfState, {}, 2))
+  fs.writeFileSync(npath.join(projectDir, 'resources.tfState'), JSON.stringify(tfState, {}, 2))
 }
 
 // run a terraform subcommand
