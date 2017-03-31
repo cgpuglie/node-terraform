@@ -33,10 +33,10 @@ const runCommand = ({
     `${path} ${subCommand}`,
     { cwd: `${projectPath}/${projectId}` },
     // resolve promise
-    ({err, stdout, stderr}) => 
+    (err, stdout, stderr) => 
       err || stderr
-      ? reject(err || stderr)
-      : resolve(stdout)
+        ? reject(err || stderr)
+        : resolve(stdout)
   )
 )
 
