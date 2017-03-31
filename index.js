@@ -29,6 +29,16 @@ const ensureFileSystem = ({
   )
 }
 
+// read state file for given project
+const readStateFile = ({
+  params : { path, projectPath, projectId, tfState, tf }
+}) => JSON.parse(
+  fs.readFileSync(
+    npath.join(projectPath, projectId, 'resources.tfState'),
+    { encoding: 'utf8' }
+  )
+)
+
 // run a terraform subcommand
 const runCommand = ({
   params: { path, projectPath, projectId, tfState, tf },
@@ -69,10 +79,14 @@ module.exports = ({
     (params = {}) => {
       params = validate(params)
       ensureFileSystem({params})
-      return runCommand({
+      return runCommand({ // run subcommand with valid params
         params,
         subCommand
       })
+      .then(({stdout}) => ({ // add tfState to output
+        stdout,
+        tfState: readStateFile({params})
+      }))
     }
   
   // create object out of valid commands
