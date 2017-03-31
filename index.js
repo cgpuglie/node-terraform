@@ -103,8 +103,13 @@ module.exports = ({
       }))
     }
   
-  // create object out of valid commands
-  return subCommands
+  return Object.assign(
+    {
+      // provide wrapper to run subcommands as strings
+      subCommand: subCommandWrapper
+    },
+    // create object out of valid commands
+    subCommands
     // normalize all commands to { name, cmd } format
     .map(subCommand => 
       typeof subCommand == 'string'
@@ -124,4 +129,5 @@ module.exports = ({
       ),
       {}
     )
+  )
 }
