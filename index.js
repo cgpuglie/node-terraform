@@ -2,6 +2,14 @@ const npath = require('path')
 const exec = require('child_process').exec
 const fs = require('fs')
 
+const {
+  subCommands,
+  files: {
+    tfFileName,
+    tfStateFileName
+  }
+} = require('./constants.js')
+
 const causeError = (message) => {
   throw new Error(message)
 }
@@ -19,12 +27,12 @@ const ensureFileSystem = ({
 
   // ensure configs exist
   fs.writeFileSync(
-    npath.join(projectDir, 'resources.tf'), 
+    npath.join(projectDir, tfFileName), 
     JSON.stringify(tf, {}, 2)
   )
 
   fs.writeFileSync(
-    npath.join(projectDir, 'resources.tfState'), 
+    npath.join(projectDir, tfStateFileName), 
     JSON.stringify(tfState, {}, 2)
   )
 }
@@ -34,7 +42,7 @@ const readStateFile = ({
   params : { path, projectPath, projectId, tfState, tf }
 }) => JSON.parse(
   fs.readFileSync(
-    npath.join(projectPath, projectId, 'resources.tfState'),
+    npath.join(projectPath, projectId, tfStateFileName),
     { encoding: 'utf8' }
   )
 )
@@ -90,7 +98,7 @@ module.exports = ({
     }
   
   // create object out of valid commands
-  return ['plan', 'apply']
+  return subCommands
     // map subcommands to function wrapper
     .map(subCommand => ({
       // return object keyed by commandName
