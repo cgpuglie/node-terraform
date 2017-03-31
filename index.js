@@ -18,9 +18,15 @@ const ensureFileSystem = ({
   || fs.mkdirSync(projectDir)
 
   // ensure configs exist
-  fs.writeFileSync(npath.join(projectDir, 'resources.tf'), JSON.stringify(tf, {}, 2))
+  fs.writeFileSync(
+    npath.join(projectDir, 'resources.tf'), 
+    JSON.stringify(tf, {}, 2)
+  )
 
-  fs.writeFileSync(npath.join(projectDir, 'resources.tfState'), JSON.stringify(tfState, {}, 2))
+  fs.writeFileSync(
+    npath.join(projectDir, 'resources.tfState'), 
+    JSON.stringify(tfState, {}, 2)
+  )
 }
 
 // run a terraform subcommand
@@ -58,14 +64,30 @@ module.exports = ({
     tfState = glTfState
   }) => ({ path, projectPath, projectId, tfState, tf })
 
-  return {
-    plan: (params = {}) => {
+  // wrap subcommands in function to call cli
+  const subCommandWrapper = (subCommand) => 
+    (params = {}) => {
       params = validate(params)
       ensureFileSystem({params})
       return runCommand({
         params,
-        subCommand: 'plan'
+        subCommand
       })
     }
-  }
+  
+  // create object out of valid commands
+  return ['plan', 'apply']
+    // map subcommands to function wrapper
+    .map(subCommand => ({
+      // return object keyed by commandName
+      [subCommand]: subCommandWrapper(subCommand)
+    }))
+    // reduce into object
+    .reduce((subCommandsByName, subCommand) =>
+      Object.assign(
+        subCommandsByName,
+        subCommand
+      ),
+      {}
+    )
 }
